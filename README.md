@@ -18,7 +18,7 @@ Needs Python 3.11 or 3.12.
 
 ```bash
 git clone <repository URL>
-cd quila-sim
+cd SimQuiLA-A-Hardware-Faithful-Simulator-for-MAQAN-and-QuILA-Networks
 python -m venv .venv
 # Windows:      .venv\Scripts\activate
 # Linux/macOS:  source .venv/bin/activate
