@@ -1,0 +1,20 @@
+# Tool configuration only. The project is not packaged for pip yet
+# (see the issue "Migrate from vendored SeQUeNCe to a pinned dependency").
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra"
+markers = [
+    "slow: long-running physics or validation tests (skip with -m 'not slow')",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+# Vendored SeQUeNCe and the v0.1 baseline code are not linted yet;
+# new code under quila_sim/ and tools/ must pass `ruff check quila_sim tools`.
+extend-exclude = ["sequence"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]

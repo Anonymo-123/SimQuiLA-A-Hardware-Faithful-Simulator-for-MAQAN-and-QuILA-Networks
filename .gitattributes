@@ -1,0 +1,10 @@
+# Normalise line endings so Windows and Linux contributors don't produce noisy diffs
+* text=auto
+
+# Binary assets
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
+*.zip binary

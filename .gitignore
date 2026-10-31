@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+/docs
+# Test / tool caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Editors / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Simulation outputs and local data (never commit MAQAN or other field data)
+/data/
+/outputs/
+/runs/
+*.log
+*.parquet
+*.h5
+*.npz
+
+# Secrets
+.env
+*.pem
+*.key

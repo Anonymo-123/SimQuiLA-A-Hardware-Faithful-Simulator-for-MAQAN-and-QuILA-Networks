@@ -1,0 +1,107 @@
+# MAQAN (Metro Area Quantum Access Network), Chennai -- preset.
+#
+# Built from Sharma et al., "Developing quantum networks: some key innovations",
+# Quantum Inf. Process. 25:19 (2026), Fig. 2 and Table 1. These are published
+# summary values, NOT calibration data. When the hardware team provides OTDR
+# traces or insertion-loss measurements, put them in each link's loss_budget
+# (measured_total_db, and the splice/connector/ADM events seen on the trace).
+# Do not put unpublished measurements in this file; keep them in the
+# restricted data store and load them from there.
+#
+# loss_db is the measured end-to-end loss used by the simulator. The
+# loss_budget explains it: with nominal 0.2 dB/km fibre, most of each link's
+# loss is "unaccounted" -- i.e. splices, connectors and patch panels.
+
+name: MAQAN-Chennai
+source: "Sharma et al., Quantum Inf. Process. 25:19 (2026), doi:10.1007/s11128-025-05031-x"
+
+nodes:
+  - {name: IITM,   site: "IIT Madras"}
+  - {name: ERNET,  site: "ERNET, IITM Research Park"}
+  - {name: SETS-1, site: "SETS Chennai", notes: "SETS hosts two MAQAN nodes"}
+  - {name: SETS-2, site: "SETS Chennai", notes: "SETS hosts two MAQAN nodes"}
+  - {name: NIC,    site: "NIC, Chennai"}
+
+links:
+  - name: IITM-ERNET
+    a: IITM
+    b: ERNET
+    length_km: 4.8
+    loss_db: 7.5
+    protocols: [DPS, COW]
+    notes: "~1.5 dB/km effective: dominated by splices/connectors, not fibre attenuation"
+    loss_budget:
+      fibre_length_km: 4.8
+      fibre_attenuation_db_per_km: 0.2   # nominal SMF at 1550 nm (assumption)
+      measured_total_db: 7.5
+      events: []                          # TODO: OTDR events from the hardware team
+      source: "published total (Sharma et al. 2026, Fig. 2)"
+
+  - name: ERNET-SETS
+    a: ERNET
+    b: SETS-1
+    length_km: 1.1
+    loss_db: 2.0
+    protocols: [DPS, COW]
+    notes: "Which SETS node terminates this link is an assumption - confirm with hardware team"
+    loss_budget:
+      fibre_length_km: 1.1
+      fibre_attenuation_db_per_km: 0.2
+      measured_total_db: 2.0
+      events: []
+      source: "published total (Sharma et al. 2026, Fig. 2)"
+
+  - name: SETS-NIC
+    a: SETS-2
+    b: NIC
+    length_km: 5.6
+    loss_db: 3.2
+    protocols: [DPS, COW]
+    notes: "Fig. 2 gives ~3.2 dB; Table 1 lists 3.5 dB - confirm"
+    loss_budget:
+      fibre_length_km: 5.6
+      fibre_attenuation_db_per_km: 0.2
+      measured_total_db: 3.2
+      events: []
+      source: "published total (Sharma et al. 2026, Fig. 2)"
+
+  - name: SETS-INTRA
+    a: SETS-1
+    b: SETS-2
+    length_km: null
+    loss_db: null
+    protocols: []
+    notes: "Not described in the paper - TODO"
+
+defaults:
+  mean_photon_number_max: 0.2       # paper: mu <= 0.2
+  laser_linewidth_hz: 100.0e3       # paper: ~100 kHz instantaneous linewidth
+  synchronisation: "White Rabbit, multiplexed with the quantum channel"
+  quantum_classical_isolation_db: 80.0
+
+# DPS-QKD hardware on the MAQAN links: the IIT Madras time-bin DPS system
+# ("Model C" in docs/link-model.md). One 3 ns pulse every 32 ns, a phase
+# written into each 1 ns bin, a one-bin-delay interferometer and ONE gated
+# detector shared by both interferometer ports. Published values only; the
+# simulator's quila_sim.core.MAQAN_DPS must match them (checked by
+# tests/test_timebin_model.py). "Calibrated" values make each imperfection
+# reproduce its line of the QBER budget in Shaw et al. (2022), Table III.
+# Sources: Shaw et al., "Equivalence of space and time-bins in DPS-QKD",
+# arXiv:2008.03083 / IEEE Photonics J. 2022; Sharma et al. (2026), above.
+dps_hardware:
+  pulse_rate_hz:       {value: 31.25e+6,  source: "one 3 ns IM pulse every 32 ns (Shaw et al. Sect. IV-A)"}
+  bins_per_pulse:      {value: 3,         source: "phase written every 1 ns inside the 3 ns pulse (Shaw et al. Fig. 4)"}
+  bin_width_s:         {value: 1.0e-9,    source: "1 ns bins = DLI delay; DLI free spectral range 1 GHz (Shaw et al.)"}
+  mean_photon_number:  {value: 0.2,       source: "per pulse; mu <= 0.2 (Sharma et al. Sect. 2.1)"}
+  extinction_ratio_db: {value: 14.8,      source: "calibrated: IM error 1.6 % (Shaw et al. Table III); paper: more than 14 dB"}
+  pm_transition_s:     {value: 42.0e-12,  source: "calibrated: PM rise/fall error 2.1 % (Shaw et al. Table III)"}
+  visibility:          {value: 0.92,      source: "DLI with 1 GHz FSR (Shaw et al.); error (1 - V)/2 = 4.0 %"}
+  layout:              {value: tdm,       source: "one SPD, DLI ports time-multiplexed (Shaw et al.; Sharma et al. Fig. 3)"}
+  tdm_delay_s:         {value: 10.0e-9,   source: "10 ns fibre delay on one DLI output port (Shaw et al.)"}
+  combiner_loss_db:    {value: 3.0,       source: "2x1 coupler before the SPD: half of the photons are lost (Shaw et al.)"}
+  balance_loss_db:     {value: 0.5,       source: "0.5 dB attenuator matching the delay-fibre loss (Shaw et al.)"}
+  detector_efficiency: {value: 0.10,      source: "gated InGaAs SPD (Shaw et al.; Sharma et al.)"}
+  dark_count_prob:     {value: 3.0e-6,    source: "per gate window (Sharma et al. Table 2)"}
+  holdoff_s:           {value: 10.0e-6,   source: "SPD hold-off time (Shaw et al.)"}
+  timing_jitter_s:     {value: 162.0e-12, source: "rms; calibrated: SPD timing-jitter error 5.0 % (Shaw et al. Table III)"}
+  guard_s:             {value: 0.0,       source: "temporal filter off; Shaw et al. also report 200 ps"}
